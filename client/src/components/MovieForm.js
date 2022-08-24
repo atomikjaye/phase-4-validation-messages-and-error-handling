@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 function MovieForm() {
+  const [errors, setErrors] = useState([])
   const [formData, setFormData] = useState({
     title: "",
     year: new Date().getFullYear(),
@@ -23,8 +24,14 @@ function MovieForm() {
       },
       body: JSON.stringify(formData),
     })
-      .then((response) => response.json())
-      .then((newMovie) => console.log(newMovie));
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((newMovie) => console.log(newMovie))
+        } else {
+          response.json().then((errorData) => setErrors(errorData.errors))
+        }
+      })
+    // .then((newMovie) => console.log(newMovie));
   }
 
   function handleChange(e) {
@@ -127,6 +134,15 @@ function MovieForm() {
         </FormGroup>
         <SubmitButton type="submit">Add Movie</SubmitButton>
       </form>
+      {
+        errors.length > 0 && (
+          <ul style={{ color: "red" }}>
+            {errors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        )
+      }
     </Wrapper>
   );
 }
